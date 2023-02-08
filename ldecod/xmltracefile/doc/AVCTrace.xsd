@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="MotionVector">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="RefIdx" type="xs:unsignedInt" />
+        <xs:element name="Difference">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="X" type="xs:unsignedByte" />
+              <xs:element name="Y" type="xs:unsignedByte" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Absolute">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="X" type="xs:unsignedByte" />
+              <xs:element name="Y" type="xs:unsignedByte" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="list" type="xs:unsignedByte" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SubMacroBlock">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Type" type="xs:unsignedInt" />
+        <xs:element name="TypeString" type="xs:string" />
+        <xs:element ref="MotionVector" />
+      </xs:sequence>
+      <xs:attribute name="num" type="xs:unsignedByte" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="vui_parameters">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" name="timing_info">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="num_units_in_tick" type="xs:unsignedInt" />
+              <xs:element name="time_scale" type="xs:unsignedInt" />
+              <xs:element name="fixed_frame_rate_flag" type="xs:unsignedInt" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="frame_cropping">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="frame_crop_left_offset" type="xs:unsignedInt" />
+        <xs:element name="frame_crop_right_offset" type="xs:unsignedInt" />
+        <xs:element name="frame_crop_top_offset" type="xs:unsignedInt" />
+        <xs:element name="frame_crop_bottom_offset" type="xs:unsignedInt" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SPS">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="pic_width_in_mbs_minus1" type="xs:unsignedInt" />
+        <xs:element name="pic_height_in_map_units_minus1" type="xs:unsignedInt" />
+        <xs:element name="frame_mbs_only_flag" type="xs:unsignedInt" />
+        <xs:element ref="frame_cropping" />
+        <xs:element minOccurs="0" maxOccurs="1" ref="vui_parameters" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NAL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Num" type="xs:unsignedInt" />
+        <xs:element name="Type" type="xs:unsignedInt" />
+        <xs:element name="TypeString" type="xs:string" />
+        <xs:element name="Length" type="xs:unsignedInt" />
+        <xs:element minOccurs="0" maxOccurs="1" ref="SPS" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AVCTrace">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="NonPicture">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="1" maxOccurs="1" ref="NAL" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Picture">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="GOPNr" type="xs:unsignedInt" />
+              <xs:element minOccurs="1" maxOccurs="2" ref="SubPicture" />
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+            <xs:attribute name="poc" type="xs:unsignedInt" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:decimal" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SubPicture">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="Slice">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Type" type="xs:unsignedByte" />
+              <xs:element name="TypeString" type="xs:string" />
+              <xs:element minOccurs="1" maxOccurs="3" ref="NAL" />
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="MacroBlock">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="PredModeString" type="xs:string" />
+                    <xs:element name="Type" type="xs:unsignedByte" />
+                    <xs:element name="TypeString" type="xs:string" />
+                    <xs:element name="SkipFlag" type="xs:unsignedByte" />
+                    <xs:choice>
+                      <xs:element minOccurs="0" maxOccurs="unbounded" ref="MotionVector" />
+                      <xs:element minOccurs="0" maxOccurs="4" ref="SubMacroBlock" />
+                    </xs:choice>
+                    <xs:element name="Position">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="X" type="xs:unsignedShort" />
+                          <xs:element name="Y" type="xs:unsignedShort" />
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="QP_Y" type="xs:unsignedByte" />
+                    <xs:element name="Coeffs">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element minOccurs="1" maxOccurs="unbounded" name="Plane">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element minOccurs="1" maxOccurs="16" name="Row" type="xs:string">
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="type" type="xs:integer" />
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="num" type="xs:unsignedInt" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="num" type="xs:unsignedInt" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="structure" type="xs:unsignedByte" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
