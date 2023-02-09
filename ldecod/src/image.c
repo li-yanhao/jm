@@ -646,21 +646,34 @@ int decode_one_frame(VideoParameters *p_Vid)
 				if(p_Vid->structure == FRAME || p_Vid->structure == TOP_FIELD ||
 					(p_Vid->structure == BOTTOM_FIELD && p_Vid->p_Dpb->last_picture->top_field == NULL))
 				{
+
+          /****** INSPECT_BEGIN ******/
+          export_from_inspector(inspector);
+          /****** INSPECT_END ******/
+
 					//Check if the previous tag must be closed
 					xml_check_and_write_end_element("SubPicture");
 					xml_check_and_write_end_element("Picture");
 					xml_write_start_element("Picture");
-						p_Vid->dec_picture->frame_id = getNewFrameID();
-						xml_write_int_attribute("id", p_Vid->dec_picture->frame_id);
-						xml_write_int_attribute("poc", picture_order(p_Vid)/p_Inp->poc_scale);
-						if(picture_order(p_Vid)/p_Inp->poc_scale == 0)
-						{
-							incrementGOP();
-							setDisplayNumberOffset(p_Vid->dec_picture->frame_id);
-						}
-						xml_write_start_element("GOPNr");
-							xml_write_int(getGOPNumber());
-						xml_write_end_element();
+          p_Vid->dec_picture->frame_id = getNewFrameID();
+          xml_write_int_attribute("id", p_Vid->dec_picture->frame_id);
+          xml_write_int_attribute("poc", picture_order(p_Vid)/p_Inp->poc_scale);
+
+          /****** INSPECT_BEGIN ******/
+          init_inspector(&inspector, p_Vid, picture_order(p_Vid)/p_Inp->poc_scale);
+          // printf("init_inspector \n ");
+          /****** INSPECT_END ******/
+
+          if(picture_order(p_Vid)/p_Inp->poc_scale == 0)
+          {
+            incrementGOP();
+            setDisplayNumberOffset(p_Vid->dec_picture->frame_id);
+          }
+          xml_write_start_element("GOPNr");
+          xml_write_int(getGOPNumber());
+          xml_write_end_element();
+
+          
 				}
 
 				if(p_Vid->structure == BOTTOM_FIELD && p_Vid->p_Dpb->last_picture->top_field != NULL)
@@ -674,12 +687,10 @@ int decode_one_frame(VideoParameters *p_Vid)
 					case BOTTOM_FIELD: xml_write_int_attribute("structure", 2); break;
 				}
 
-        /****** INSPECT_BEGIN ******/
-        init_inspector(&inspector, p_Vid);
-        // printf("init_inspector \n ");
-        inspector->residual[0][0][0] = 1;
-        // printf("inspector->residual[0][0][0] = 1; \n");
-        /****** INSPECT_END ******/
+        
+
+       
+
 			}
 		}
 		/****** XML_TRACE_END ******/
@@ -706,6 +717,12 @@ int decode_one_frame(VideoParameters *p_Vid)
 
     if (current_header == EOS)
     {
+      /****** INSPECT_BEGIN ******/
+      export_from_inspector(inspector);
+      free_inspector(&inspector);
+      /****** INSPECT_END ******/
+
+
       exit_picture(p_Vid, &p_Vid->dec_picture);
 
       /***** XML_TRACE_BEGIN *****/
@@ -716,11 +733,8 @@ int decode_one_frame(VideoParameters *p_Vid)
       }
       /****** XML_TRACE_END *****/
 
-      /****** INSPECT_BEGIN ******/
-      export_from_inspector(inspector);
-      free_inspector(&inspector);
-      /****** INSPECT_END ******/
       
+      printf("return EOS \n");
       return EOS;
     }
 
@@ -752,7 +766,6 @@ int decode_one_frame(VideoParameters *p_Vid)
 	/****** XML_TRACE_END *****/
 
   /****** INSPECT_BEGIN ******/
-  export_from_inspector(inspector);
   free_inspector(&inspector);
   /****** INSPECT_END ******/
 

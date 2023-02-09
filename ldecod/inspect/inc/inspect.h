@@ -12,12 +12,17 @@ typedef struct inspector
   int width;
   int channel;
 
+  int num_pic_stream;
+  int num_display;
+
+  uint8 is_exported;
+
 } Inspector;
 
 
 void extract_residual(Macroblock* currMB, Slice* currSlice, float*** out_residual);
-void init_inspector(Inspector** inspector, VideoParameters* p_Vid);
+void init_inspector(Inspector** inspector, VideoParameters* p_Vid, int num_display);
 void free_inspector(Inspector** inspector);
-void export_from_inspector(Inspector* inspector);
+int export_from_inspector(Inspector* inspector);
 
 #endif

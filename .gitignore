@@ -1,8 +1,17 @@
 .vscode/*
 
+
 bin/*.exe
 bin/log.dec
 bin/dataDec.txt
+bin/.idea
+bin/*npy
+bin/*png
+bin/*
+
+**/obj/
+
+
 
 ldecod/dependencies
 

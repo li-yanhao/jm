@@ -82,22 +82,33 @@ void extract_residual(Macroblock* currMB, Slice* currSlice, float*** out_residua
   // xml_write_end_element();
 }
 
-void init_inspector(Inspector** inspector, VideoParameters* p_Vid)
+void init_inspector(Inspector** inspector, VideoParameters* p_Vid, int num_display)
 {
   // TODO
   // printf("p_Vid->height = %d \n", p_Vid->height);
   // printf("p_Vid->width = %d \n", p_Vid->width);
   if (! *inspector) {
     *inspector = (Inspector*) calloc(1, sizeof(Inspector));
-    (*inspector)->height = p_Vid->height;
-    (*inspector)->width = p_Vid->width;
-    (*inspector)->channel = 3;
+  }
 
+  (*inspector)->height = p_Vid->height;
+  (*inspector)->width = p_Vid->width;
+  (*inspector)->channel = 3;
+  (*inspector)->num_pic_stream = p_Vid->dec_picture->frame_id;
+  (*inspector)->num_display = num_display;
+
+  printf("p_Vid->dec_picture->frame_id = %d \n", p_Vid->dec_picture->frame_id);
+
+  if (! (*inspector)->residual) {
     get_mem3Dfloat(&((*inspector)->residual), 3, p_Vid->height, p_Vid->width);
   }
 
-  // see:
-  // alloc_storable_picture(p_Vid->width, p_Vid->height, p_Vid->width_cr, p_Vid->height_cr);  // luma, chroma
+  float* data = &((*inspector)->residual[0][0][0]);
+  for (size_t i=0; i < 3 * p_Vid->height * p_Vid->width; i++) {
+    data[i] = 0.0f;
+  }
+
+  (*inspector)->is_exported = 0;
 
 }
 
@@ -109,18 +120,31 @@ void free_inspector(Inspector** inspector)
   }
 }
 
-void export_from_inspector(Inspector* inspector)
+int export_from_inspector(Inspector* inspector)
 {
-  // iio_write_image_as_npy("residual.npy", &(inspector->residual[0][0][0]), inspector->width, inspector->height, inspector->channel);
-  float* data = &(inspector->residual[0][0][0]);
-  // for (int i = 0; i < inspector->width * inspector->height; ++i) {
-  //   if ( data[i] != 0 ) {
-  //     printf("%d ", data[i]);
-  //   }
-  // }
-  iio_write_image_float("img_y.npy", data, inspector->width, inspector->height);
-  // iio_write_image_int("img_y.npy", &(inspector->residual[0][0][0]), inspector->width, inspector->height);
-  // iio_write_image_int("img_u.npy", &(inspector->residual[1][0][0]), inspector->width, inspector->height);
-  // iio_write_image_int("img_v.npy", &(inspector->residual[2][0][0]), inspector->width, inspector->height);
-  printf("img_*.npy is created. \n");
+  printf("export_from_inspector(): \n");
+  
+  if (inspector && inspector->is_exported == 0) {
+    printf("num_stream=%d, num_display=%d \n", inspector->num_pic_stream, inspector->num_display);
+    float* data = &(inspector->residual[0][0][0]);
+    char fname[100];
+
+    sprintf(fname, "imgY_s%03d_d%03d.npy", inspector->num_pic_stream, inspector->num_display);
+    iio_write_image_float(fname, &(inspector->residual[0][0][0]), inspector->width, inspector->height);
+    
+    sprintf(fname, "imgU_s%03d_d%03d.npy", inspector->num_pic_stream, inspector->num_display);
+    iio_write_image_float(fname, &(inspector->residual[1][0][0]), inspector->width, inspector->height);
+    
+    sprintf(fname, "imgV_s%03d_d%03d.npy", inspector->num_pic_stream, inspector->num_display);
+    iio_write_image_float(fname, &(inspector->residual[2][0][0]), inspector->width, inspector->height);
+    // iio_write_image_int("img_u.npy", &(inspector->residual[1][0][0]), inspector->width, inspector->height);
+    // iio_write_image_int("img_v.npy", &(inspector->residual[2][0][0]), inspector->width, inspector->height);
+    printf("img_*.npy is created. \n");
+
+    inspector->is_exported = 1;
+
+    return 1;
+  }
+
+  return 0;
 }
