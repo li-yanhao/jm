@@ -1,0 +1,9 @@
+.vscode/*
+
+bin/*.exe
+bin/log.dec
+bin/dataDec.txt
+
+ldecod/dependencies
+
+ldecod/inspect/iio

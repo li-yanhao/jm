@@ -9,7 +9,7 @@
  * \author
  *    Main contributors (see contributors.h for copyright, address and affiliation details)
  *     - Alexis Michael Tourapis         <alexismt@ieee.org> 
- *     - Karsten Sühring                 <suehring@hhi.de> 
+ *     - Karsten Sï¿½hring                 <suehring@hhi.de> 
  *
  ************************************************************************
  */
@@ -893,6 +893,31 @@ int get_mem2Dint64(int64 ***array2D, int dim0, int dim1)
   return dim0 * (sizeof(int64*) + dim1 * sizeof(int64));
 }
 
+
+/*!
+ ************************************************************************
+ * \brief
+ *    Allocate 2D memory array -> float array2D[dim0][dim1]
+ *
+ * \par Output:
+ *    memory size in bytes
+ ************************************************************************
+ */
+int get_mem2Dfloat(float ***array2D, int dim0, int dim1)
+{
+  int i;
+
+  if((*array2D    = (float**)malloc(dim0 *       sizeof(float*))) == NULL)
+    no_mem_exit("get_mem2Dfloat: array2D");
+  if((*(*array2D) = (float* )calloc(dim0 * dim1, sizeof(float ))) == NULL)
+    no_mem_exit("get_mem2Dfloat: array2D");
+
+  for(i = 1 ; i < dim0; i++)
+    (*array2D)[i] =  (*array2D)[i-1] + dim1;
+
+  return dim0 * (sizeof(int*) + dim1 * sizeof(float));
+}
+
 int get_mem2Ddistblk(distblk ***array2D, int dim0, int dim1)
 {
   int i;
@@ -997,6 +1022,31 @@ int get_mem3Dint64(int64 ****array3D, int dim0, int dim1, int dim2)
     no_mem_exit("get_mem3Dint64: array3D");
 
   mem_size += get_mem2Dint64(*array3D, dim0 * dim1, dim2);
+
+  for(i = 1; i < dim0; i++)
+    (*array3D)[i] =  (*array3D)[i-1] + dim1;
+
+  return mem_size;
+}
+
+
+/*!
+ ************************************************************************
+ * \brief
+ *    Allocate 3D memory array -> float array3D[dim0][dim1][dim2]
+ *
+ * \par Output:
+ *    memory size in bytes
+ ************************************************************************
+ */
+int get_mem3Dfloat(float ****array3D, int dim0, int dim1, int dim2)
+{
+  int  i, mem_size = dim0 * sizeof(int**);
+
+  if(((*array3D) = (float***)malloc(dim0 * sizeof(float**))) == NULL)
+    no_mem_exit("get_mem3Dfloat: array3D");
+
+  mem_size += get_mem2Dfloat(*array3D, dim0 * dim1, dim2);
 
   for(i = 1; i < dim0; i++)
     (*array3D)[i] =  (*array3D)[i-1] + dim1;
@@ -1170,6 +1220,32 @@ void free_mem2Dint64(int64 **array2D)
 }
 
 
+
+/*!
+ ************************************************************************
+ * \brief
+ *    free 2D memory array
+ *    which was allocated with get_mem2Dfloat()
+ ************************************************************************
+ */
+void free_mem2Dfloat(float **array2D)
+{
+  if (array2D)
+  {
+    if (*array2D)
+      free (*array2D);
+    else 
+      error ("free_mem2Dfloat: trying to free unused memory",100);
+
+    free (array2D);
+  } 
+  else
+  {
+    error ("free_mem2Dfloat: trying to free unused memory",100);
+  }
+}
+
+
 /*!
  ************************************************************************
  * \brief
@@ -1250,6 +1326,28 @@ void free_mem3Dint64(int64 ***array3D)
     error ("free_mem3Dint64: trying to free unused memory",100);
   }
 }
+
+
+/*!
+ ************************************************************************
+ * \brief
+ *    free 3D memory array
+ *    which was allocated with get_mem3Dfloat()
+ ************************************************************************
+ */
+void free_mem3Dfloat(float ***array3D)
+{
+  if (array3D)
+  {
+   free_mem2Dfloat(*array3D);
+   free (array3D);
+  } 
+  else
+  {
+    error ("free_mem3Dfloat: trying to free unused memory", 100);
+  }
+}
+
 
 void free_mem3Ddistblk(distblk ***array3D)
 {

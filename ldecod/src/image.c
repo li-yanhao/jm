@@ -61,6 +61,10 @@
 #include "tracehelper.h"
 /****** XML_TRACE_END ******/
 
+/****** INSPECT_BEGIN ******/
+#include "inspect.h"
+/****** INSPECT_END ******/
+
 extern int testEndian(void);
 
 /*!
@@ -531,7 +535,7 @@ static void fill_wp_params(Slice *currSlice)
 }
 
 
-static void decode_slice(Slice *currSlice, int current_header)
+static void decode_slice(Slice *currSlice, int current_header, Inspector* inspector)
 {
   VideoParameters *p_Vid = currSlice->p_Vid;
 
@@ -548,7 +552,7 @@ static void decode_slice(Slice *currSlice, int current_header)
 
   // decode main slice information
   if ((current_header == SOP || current_header == SOS) && currSlice->ei_flag == 0)
-    decode_one_slice(currSlice);
+    decode_one_slice(currSlice, inspector);
 
   // setMB-Nr in case this slice was lost
   // if(currSlice->ei_flag)
@@ -621,6 +625,9 @@ int decode_one_frame(VideoParameters *p_Vid)
   currSlice->coeff_ctr = -1;
   currSlice->pos       =  0;
 
+  /****** INSPECT_BEGIN ******/
+  Inspector* inspector = NULL;
+  /****** INSPECT_END ******/
 
   while ((currSlice->next_header != EOS && currSlice->next_header != SOP))
   {
@@ -666,9 +673,17 @@ int decode_one_frame(VideoParameters *p_Vid)
 					case TOP_FIELD: xml_write_int_attribute("structure", 1); break;
 					case BOTTOM_FIELD: xml_write_int_attribute("structure", 2); break;
 				}
+
+        /****** INSPECT_BEGIN ******/
+        init_inspector(&inspector, p_Vid);
+        // printf("init_inspector \n ");
+        inspector->residual[0][0][0] = 1;
+        // printf("inspector->residual[0][0][0] = 1; \n");
+        /****** INSPECT_END ******/
 			}
 		}
 		/****** XML_TRACE_END ******/
+
 
     // If primary and redundant are received and primary is correct, discard the redundant
     // else, primary slice will be replaced with redundant slice.
@@ -693,13 +708,19 @@ int decode_one_frame(VideoParameters *p_Vid)
     {
       exit_picture(p_Vid, &p_Vid->dec_picture);
 
-		/***** XML_TRACE_BEGIN *****/
-		if(xml_gen_trace_file())
-		{
-			xml_check_and_write_end_element("SubPicture");
-			xml_check_and_write_end_element("Picture");
-		}
-		/****** XML_TRACE_END *****/
+      /***** XML_TRACE_BEGIN *****/
+      if(xml_gen_trace_file())
+      {
+        xml_check_and_write_end_element("SubPicture");
+        xml_check_and_write_end_element("Picture");
+      }
+      /****** XML_TRACE_END *****/
+
+      /****** INSPECT_BEGIN ******/
+      export_from_inspector(inspector);
+      free_inspector(&inspector);
+      /****** INSPECT_END ******/
+      
       return EOS;
     }
 
@@ -714,7 +735,7 @@ int decode_one_frame(VideoParameters *p_Vid)
       currSlice->linfo_cbp_inter = linfo_cbp_inter_normal;
     }
 
-    decode_slice(currSlice, current_header);
+    decode_slice(currSlice, current_header, inspector);
 
     p_Vid->newframe = 0;
     ++(p_Vid->current_slice_nr);
@@ -729,6 +750,11 @@ int decode_one_frame(VideoParameters *p_Vid)
 		xml_check_and_write_end_element("Picture");
 	}
 	/****** XML_TRACE_END *****/
+
+  /****** INSPECT_BEGIN ******/
+  export_from_inspector(inspector);
+  free_inspector(&inspector);
+  /****** INSPECT_END ******/
 
   return (SOP);
 }
@@ -2069,7 +2095,7 @@ void copy_dec_picture_JV( VideoParameters *p_Vid, StorablePicture *dst, Storable
  *    decodes one slice
  ************************************************************************
  */
-void decode_one_slice(Slice *currSlice)
+void decode_one_slice(Slice *currSlice, Inspector* inspector)
 {
   VideoParameters *p_Vid = currSlice->p_Vid;
   Boolean end_of_slice = FALSE;
@@ -2154,6 +2180,10 @@ void decode_one_slice(Slice *currSlice)
       if(xml_get_log_level() >= 4) addCoeffsToTrace(currMB, currSlice);
     }
     /****** XML_TRACE_END ******/
+
+    /****** INSPECT_BEGIN ******/
+    extract_residual(currMB, currSlice, inspector->residual);
+    /****** INSPECT_END ******/
 
     decode_one_macroblock(currMB, p_Vid->dec_picture);
 

@@ -14,11 +14,20 @@
 
 #include "mbuffer.h"
 
+/****** INSPECT_BEGIN ******/
+#include "inspect.h"
+/****** INSPECT_END ******/
+
 extern void calculate_frame_no(VideoParameters *p_Vid, StorablePicture *p);
 extern void find_snr          (VideoParameters *p_Vid, StorablePicture *p, int *p_ref);
 extern int  picture_order     (VideoParameters *p_Vid);
 
-extern void decode_one_slice  (Slice *currSlice);
+
+/****** INSPECT_BEGIN ******/
+// extern void decode_one_slice  (Slice *currSlice);
+extern void decode_one_slice(Slice *currSlice, Inspector* inspector);
+/****** INSPECT_END ******/
+
 extern int  read_new_slice    (Slice *currSlice);
 extern void exit_picture      (VideoParameters *p_Vid, StorablePicture **dec_picture);
 extern int  decode_one_frame  (VideoParameters *p_Vid);

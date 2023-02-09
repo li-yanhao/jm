@@ -9,7 +9,7 @@
  *
  *  \author
  *      Main contributors (see contributors.h for copyright, address and affiliation details)
- *      - Karsten Sühring                 <suehring@hhi.de>
+ *      - Karsten Sï¿½hring                 <suehring@hhi.de>
  *      - Alexis Tourapis                 <alexismt@ieee.org>
  *      - Jill Boyce                      <jill.boyce@thomson.net>
  *      - Saurav K Bandyopadhyay          <saurav@ieee.org>
@@ -384,7 +384,7 @@ void alloc_pic_motion(VideoParameters *p_Vid, PicMotionParams *motion, int size_
  *    Allocate memory for a stored picture.
  *
  * \param p_Vid
- *      image decoding parameters for current picture
+ *    image decoding parameters for current picture
  * \param structure
  *    picture structure
  * \param size_x

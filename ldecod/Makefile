@@ -25,6 +25,10 @@ INCDIR= inc
 SRCDIR= src
 XMLTRACEINCDIR= xmltracefile/inc
 XMLTRACESRCDIR= xmltracefile/src
+INSPECTINCDIR= inspect/inc
+INSPECTSRCDIR= inspect/src
+IIODIR= inspect/iio
+
 OBJDIR= obj
 
 ADDSRCDIR= ../lcommon/src
@@ -47,10 +51,10 @@ else
 STATIC= 
 endif
 
-LIBS=   -lm $(STATIC)
+LIBS=   -lm $(STATIC) -lpng -ltiff -ljpeg
 AFLAGS=  
 CFLAGS=  -std=gnu99 -pedantic -ffloat-store -fno-strict-aliasing -fsigned-char $(STATIC)
-FLAGS=  $(CFLAGS) -Wall -I$(INCDIR) -I$(ADDINCDIR) -I$(XMLTRACEINCDIR) -D __USE_LARGEFILE64 -D _FILE_OFFSET_BITS=64
+FLAGS=  $(CFLAGS) -Wall -I$(INCDIR) -I$(ADDINCDIR) -I$(XMLTRACEINCDIR) -I$(INSPECTINCDIR) -I$(IIODIR) -D __USE_LARGEFILE64 -D _FILE_OFFSET_BITS=64
 
 OPT_FLAG = -O$(OPT)
 ifeq ($(DBG),1)
@@ -66,7 +70,9 @@ OBJSUF= .o$(SUFFIX)
 SRC=    $(wildcard $(SRCDIR)/*.c) 
 ADDSRC= $(wildcard $(ADDSRCDIR)/*.c)
 XMLSRC= $(wildcard $(XMLTRACESRCDIR)/*.c)
-OBJ=    $(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.o$(SUFFIX)) $(ADDSRC:$(ADDSRCDIR)/%.c=$(OBJDIR)/%.o$(SUFFIX)) $(XMLSRC:$(XMLTRACESRCDIR)/%.c=$(OBJDIR)/%.o$(SUFFIX))
+INSPECTSRC= $(wildcard $(INSPECTSRCDIR)/*.c)
+IIOSRC= $(wildcard $(IIODIR)/*.c)
+OBJ=    $(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.o$(SUFFIX)) $(ADDSRC:$(ADDSRCDIR)/%.c=$(OBJDIR)/%.o$(SUFFIX)) $(XMLSRC:$(XMLTRACESRCDIR)/%.c=$(OBJDIR)/%.o$(SUFFIX)) $(INSPECTSRC:$(INSPECTSRCDIR)/%.c=$(OBJDIR)/%.o$(SUFFIX)) $(IIOSRC:$(IIODIR)/%.c=$(OBJDIR)/%.o$(SUFFIX))
 BIN=    $(BINDIR)/$(NAME)$(SUFFIX).exe
 
 .PHONY: default distclean clean tags depend
@@ -107,7 +113,7 @@ bin:    $(OBJ)
 depend:
 	@echo
 	@echo 'checking dependencies'
-	@$(SHELL) -ec '$(CC) $(AFLAGS) -MM $(CFLAGS) -I$(INCDIR) -I$(ADDINCDIR) -I$(XMLTRACEINCDIR) $(SRC) $(ADDSRC) $(XMLSRC)                  \
+	@$(SHELL) -ec '$(CC) $(AFLAGS) -MM $(CFLAGS) -I$(INCDIR) -I$(ADDINCDIR) -I$(XMLTRACEINCDIR) -I$(INSPECTINCDIR) -I$(IIODIR) $(SRC) $(ADDSRC) $(XMLSRC) $(INSPECTSRC) ${IIOSRC}               \
          | sed '\''s@\(.*\)\.o[ :]@$(OBJDIR)/\1.o$(SUFFIX):@g'\''               \
          >$(DEPEND)'
 	@echo
@@ -124,6 +130,14 @@ $(OBJDIR)/%.o$(SUFFIX): $(XMLTRACESRCDIR)/%.c
 	@echo 'compiling object file "$@" ...'
 	@$(CC) -c -o $@ $(FLAGS) $<
 
+$(OBJDIR)/%.o$(SUFFIX): $(INSPECTSRCDIR)/%.c
+	@echo 'compiling object file "$@" ...'
+	@$(CC) -c -o $@ $(FLAGS) $<
+
+$(OBJDIR)/%.o$(SUFFIX): $(IIODIR)/%.c
+	@echo 'compiling object file "$@" ...'
+	@$(CC) -c -o $@ $(FLAGS) $<
+	
 objdir_mk:
 	@echo 'Creating $(OBJDIR) ...'
 	@mkdir -p $(OBJDIR)

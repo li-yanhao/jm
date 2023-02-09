@@ -8,7 +8,7 @@
  *
  * \author
  *    Main contributors (see contributors.h for copyright, address and affiliation details)
- *     - Karsten Sühring                 <suehring@hhi.de> 
+ *     - Karsten Sï¿½hring                 <suehring@hhi.de> 
  *     - Alexis Michael Tourapis         <alexismt@ieee.org> 
  *
  ************************************************************************
@@ -54,12 +54,15 @@ extern int  get_mem4D(byte *****array4D, int dim0, int dim1, int dim2, int dim3)
 
 extern int  get_mem2Dint(int ***array2D, int rows, int columns);
 extern int  get_mem2Dint64(int64 ***array2D, int rows, int columns);
+
 extern int  get_mem3Dint(int ****array3D, int frames, int rows, int columns);
 extern int  get_mem3Dint64(int64 ****array3D, int frames, int rows, int columns);
 extern int  get_mem4Dint(int *****array4D, int idx, int frames, int rows, int columns );
 extern int  get_mem4Dint64(int64 *****array4D, int idx, int frames, int rows, int columns );
 extern int  get_mem5Dint(int ******array5D, int refs, int blocktype, int rows, int columns, int component);
 
+extern int  get_mem2Dfloat(float ***array2D, int rows, int columns);
+extern int  get_mem3Dfloat(float ****array3D, int frames, int rows, int columns);
 
 extern int get_mem3Duint16(uint16 ****array3D,int dim0, int dim1, int dim2);
 
@@ -121,6 +124,10 @@ extern void free_mem5Dint  (int    *****array5D);
 extern void free_mem2Dint64(int64     **array2D);
 extern void free_mem3Dint64(int64    ***array3D);
 extern void free_mem4Dint64(int64     ****array4D);
+
+
+extern void free_mem2Dfloat(float  **array2D);
+extern void free_mem3Dfloat(float ***array3D);
 
 extern void free_mem2Ddistblk(distblk     **array2D);
 extern void free_mem3Ddistblk(distblk    ***array3D);
