@@ -11,6 +11,8 @@ bin/*
 
 **/obj/
 
+**/.DS_Store
+
 
 
 ldecod/dependencies

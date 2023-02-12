@@ -116,14 +116,15 @@ static void JMDecHelpExit (void)
     "## Parameters\n\n"
 
     "## Options\n"
-    "   -h  :  prints function usage\n"
-    "       :  parse <defdec.cfg> for decoder operation.\n"
-    "   -i  :  Input file name. \n"
-    "   -o  :  Output file name. If not specified default output is set as test_dec.yuv\n\n"
-    "   -r  :  Reference file name. If not specified default output is set as test_rec.yuv\n\n"
-    "   -p  :  Poc Scale. \n"
-    "   -uv :  write chroma components for monochrome streams(4:2:0)\n"
-    "   -lp :  By default the deblocking filter for High Intra-Only profile is off \n\t  regardless of the flags in the bitstream. In the presence of\n\t  this option, the loop filter usage will then be determined \n\t  by the flags and parameters in the bitstream.\n\n" 
+    "   -h        :  prints function usage\n"
+    "             :  parse <defdec.cfg> for decoder operation.\n"
+    "   -i        :  Input file name. \n"
+    "   -o        :  Output file name. If not specified default output is set as test_dec.yuv\n\n"
+    "   -r        :  Reference file name. If not specified default output is set as test_rec.yuv\n\n"
+    "   -p        :  Poc Scale. \n"
+    "   -uv       :  write chroma components for monochrome streams(4:2:0)\n"
+    "   -lp       :  By default the deblocking filter for High Intra-Only profile is off \n\t  regardless of the flags in the bitstream. In the presence of\n\t  this option, the loop filter usage will then be determined \n\t  by the flags and parameters in the bitstream.\n\n"
+    "   -xmltrace : <tracefile>.xml" 
 
     "## Supported video file formats\n"
     "   Input : .264 -> H.264 bitstream files. \n"
@@ -133,7 +134,7 @@ static void JMDecHelpExit (void)
     "   ldecod\n"
     "   ldecod  -h\n"
     "   ldecod  default.cfg\n"
-    "   ldecod  -i bitstream.264 -o output.yuv -r reference.yuv\n");
+    "   ldecod  -i bitstream.264 -o output.yuv -r reference.yuv -xmltrace out.xml\n");
 
   exit(-1);
 }

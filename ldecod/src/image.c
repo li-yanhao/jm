@@ -637,64 +637,100 @@ int decode_one_frame(VideoParameters *p_Vid)
     Error_tracking(p_Vid);
 
 		/***** XML_TRACE_BEGIN *****/
-		if(xml_gen_trace_file())
-		{
-			//Check if new picture is being decoded
-			if(is_new_picture(p_Vid->dec_picture, currSlice, p_Vid->old_slice))
-			{
-				//Check whether this is really a new picture (or just a new field, in case of interlaced content)
-				if(p_Vid->structure == FRAME || p_Vid->structure == TOP_FIELD ||
-					(p_Vid->structure == BOTTOM_FIELD && p_Vid->p_Dpb->last_picture->top_field == NULL))
-				{
+		// if(xml_gen_trace_file())
+		// {
+		// 	//Check if new picture is being decoded
+		// 	if(is_new_picture(p_Vid->dec_picture, currSlice, p_Vid->old_slice))
+		// 	{
+		// 		//Check whether this is really a new picture (or just a new field, in case of interlaced content)
+		// 		if(p_Vid->structure == FRAME || p_Vid->structure == TOP_FIELD ||
+		// 			(p_Vid->structure == BOTTOM_FIELD && p_Vid->p_Dpb->last_picture->top_field == NULL))
+		// 		{
 
-          /****** INSPECT_BEGIN ******/
-          export_from_inspector(inspector);
-          /****** INSPECT_END ******/
+    //       /****** INSPECT_BEGIN ******/
+    //       export_from_inspector(inspector);
+    //       /****** INSPECT_END ******/
 
-					//Check if the previous tag must be closed
-					xml_check_and_write_end_element("SubPicture");
-					xml_check_and_write_end_element("Picture");
-					xml_write_start_element("Picture");
-          p_Vid->dec_picture->frame_id = getNewFrameID();
-          xml_write_int_attribute("id", p_Vid->dec_picture->frame_id);
-          xml_write_int_attribute("poc", picture_order(p_Vid)/p_Inp->poc_scale);
+		// 			//Check if the previous tag must be closed
+		// 			xml_check_and_write_end_element("SubPicture");
+		// 			xml_check_and_write_end_element("Picture");
+		// 			xml_write_start_element("Picture");
+    //       p_Vid->dec_picture->frame_id = getNewFrameID();
+    //       xml_write_int_attribute("id", p_Vid->dec_picture->frame_id);
+    //       xml_write_int_attribute("poc", picture_order(p_Vid)/p_Inp->poc_scale);
 
-          /****** INSPECT_BEGIN ******/
-          init_inspector(&inspector, p_Vid, picture_order(p_Vid)/p_Inp->poc_scale);
-          // printf("init_inspector \n ");
-          /****** INSPECT_END ******/
+    //       /****** INSPECT_BEGIN ******/
+    //       init_inspector(&inspector, p_Vid, picture_order(p_Vid)/p_Inp->poc_scale);
+    //       inspect_pic_type(inspector, p_Vid->type);
+    //       // printf("init_inspector \n ");
+    //       /****** INSPECT_END ******/
 
-          if(picture_order(p_Vid)/p_Inp->poc_scale == 0)
-          {
-            incrementGOP();
-            setDisplayNumberOffset(p_Vid->dec_picture->frame_id);
-          }
-          xml_write_start_element("GOPNr");
-          xml_write_int(getGOPNumber());
-          xml_write_end_element();
+    //       if(picture_order(p_Vid)/p_Inp->poc_scale == 0)
+    //       {
+    //         incrementGOP();
+    //         setDisplayNumberOffset(p_Vid->dec_picture->frame_id);
+    //       }
+    //       xml_write_start_element("GOPNr");
+    //       xml_write_int(getGOPNumber());
+    //       xml_write_end_element();
 
           
-				}
+		// 		}
 
-				if(p_Vid->structure == BOTTOM_FIELD && p_Vid->p_Dpb->last_picture->top_field != NULL)
-					p_Vid->dec_picture->frame_id = p_Vid->p_Dpb->last_picture->top_field->frame_id;
+		// 		if(p_Vid->structure == BOTTOM_FIELD && p_Vid->p_Dpb->last_picture->top_field != NULL)
+		// 			p_Vid->dec_picture->frame_id = p_Vid->p_Dpb->last_picture->top_field->frame_id;
 				
-				xml_check_and_write_end_element("SubPicture");
-				xml_write_start_element("SubPicture");
-				switch(p_Vid->structure){
-					case FRAME: xml_write_int_attribute("structure", 0); break;
-					case TOP_FIELD: xml_write_int_attribute("structure", 1); break;
-					case BOTTOM_FIELD: xml_write_int_attribute("structure", 2); break;
-				}
+		// 		xml_check_and_write_end_element("SubPicture");
+		// 		xml_write_start_element("SubPicture");
+		// 		switch(p_Vid->structure){
+		// 			case FRAME: xml_write_int_attribute("structure", 0); break;
+		// 			case TOP_FIELD: xml_write_int_attribute("structure", 1); break;
+		// 			case BOTTOM_FIELD: xml_write_int_attribute("structure", 2); break;
+		// 		}
+		// 	}
+		// }
+		/****** XML_TRACE_END ******/
+
+
+    /****** INSPECT_BEGIN ******/
+    // Check if new picture is being decoded
+    if(is_new_picture(p_Vid->dec_picture, currSlice, p_Vid->old_slice))
+    {
+      //Check whether this is really a new picture (or just a new field, in case of interlaced content)
+      if(p_Vid->structure == FRAME || p_Vid->structure == TOP_FIELD ||
+        (p_Vid->structure == BOTTOM_FIELD && p_Vid->p_Dpb->last_picture->top_field == NULL))
+      {
+
+        // printf("picture_order(p_Vid)/p_Inp->poc_scale = %d \n", picture_order(p_Vid)/p_Inp->poc_scale);
+        // if ( (inspector != NULL) && (picture_order(p_Vid)/p_Inp->poc_scale == 0))
+        // {
+        //   printf("inspect_poc_offset() \n");
+        //   printf("p_Vid->dec_picture->frame_id = %d \n", p_Vid->dec_picture->frame_id);
+        // }
+
+        export_from_inspector(inspector);
+        p_Vid->dec_picture->frame_id = getNewFrameID();
 
         
 
-       
+        if (picture_order(p_Vid)/p_Inp->poc_scale == 0)
+        {
+          printf("p_Vid->dec_picture->frame_id = %d \n", p_Vid->dec_picture->frame_id);
 
-			}
-		}
-		/****** XML_TRACE_END ******/
+          if (inspector) {
+            inspect_poc_offset(inspector, p_Vid->dec_picture->frame_id);
+          }
+          
+          incrementGOP();
+          setDisplayNumberOffset(p_Vid->dec_picture->frame_id);
+        }
 
+        init_inspector(&inspector, p_Vid, picture_order(p_Vid)/p_Inp->poc_scale);
+        inspect_pic_type(inspector, p_Vid->type);
+
+      }
+    }
+    /****** INSPECT_BEGIN ******/
 
     // If primary and redundant are received and primary is correct, discard the redundant
     // else, primary slice will be replaced with redundant slice.
@@ -2195,10 +2231,14 @@ void decode_one_slice(Slice *currSlice, Inspector* inspector)
     /****** XML_TRACE_END ******/
 
     /****** INSPECT_BEGIN ******/
-    extract_residual(currMB, currSlice, inspector->residual);
+    extract_coeffs(currMB, currSlice, inspector->coeffs);
     /****** INSPECT_END ******/
 
     decode_one_macroblock(currMB, p_Vid->dec_picture);
+
+    /****** INSPECT_BEGIN ******/
+    extract_residual(currMB, currSlice, inspector->residual);
+    /****** INSPECT_END ******/
 
     if(currSlice->mb_aff_frame_flag && p_Vid->dec_picture->motion.mb_field[p_Vid->current_mb_nr])
     {
