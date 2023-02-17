@@ -233,7 +233,7 @@ static void Configure(VideoParameters *p_Vid, InputParameters *p_Inp, int ac, ch
       p_Inp->silent = TRUE;
       ++CLcount;
     }
-    else if (0 == strncmp (av[CLcount], "-i", 2))  //! Input file
+    else if (0 == strncmp (av[CLcount], "-i", 4))  //! Input file
     {
       strcpy(p_Inp->infile,av[CLcount+1]);
       CLcount += 2;
@@ -270,6 +270,12 @@ static void Configure(VideoParameters *p_Vid, InputParameters *p_Inp, int ac, ch
 			CLcount += 2;
     }
 		/****** XML_TRACE_END *****/
+    /***** INSPECT_BEGIN *****/
+    else if (0 == strncmp (av[CLcount], "-inspect", 14)) {
+      inspect_set_savedir(av[CLcount+1]);
+      CLcount += 2;
+    }
+    /***** INSPECT_END *****/
     else
     {
       snprintf(errortext, ET_SIZE, "Invalid syntax. Use ldecod -h for proper usage");
@@ -826,7 +832,6 @@ static void init_conf(VideoParameters *p_Vid, InputParameters *p_Inp, char *conf
   xml_set_trace_filename(xmltracefile);
   xml_set_log_level(xmlloglevel);
   /****** XML_TRACE_END *****/
-
 
   /***** ENCODERLOG *****/
 	fscanf(fd,"%s",p_Inp->encoderLogName);

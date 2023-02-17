@@ -4,8 +4,10 @@
 
 #include "macroblock.h"
 
-// NB: Global variable
+
+// NB: Global variables
 int g_mb_type;
+char g_save_dir[255];
 
 enum {
   UNDEFINED_MB = 0,  // others
@@ -47,5 +49,6 @@ void inspect_poc_offset(Inspector* inspector, int offset);
 void extract_mb_type(Macroblock* currMB, Slice* currSlice, int mb_type, uint8** img_type);
 
 void save_mb_type(int mb_type);
+void inspect_set_savedir(char* location);
 
 #endif
