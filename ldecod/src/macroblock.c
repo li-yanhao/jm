@@ -1140,6 +1140,10 @@ static void read_one_macroblock_i_slice(Macroblock *currMB)
   setCurrentMBType(currMB->mb_type);
   /****** XML_TRACE_END *****/
 
+  /***** INSPECT_BEGIN ****/
+  save_mb_type(currMB->mb_type);
+  /****** INSPECT_END *****/
+
   currSlice->interpret_mb_mode(currMB);
 
   //init NoMbPartLessThan8x8Flag
@@ -1412,6 +1416,10 @@ static void read_one_macroblock_p_slice(Macroblock *currMB)
   /***** XML_TRACE_BEGIN ****/
   setCurrentMBType(currMB->mb_type);
   /****** XML_TRACE_END *****/
+
+  /***** INSPECT_BEGIN ****/
+  save_mb_type(currMB->mb_type);
+  /****** INSPECT_END *****/
 
   currSlice->interpret_mb_mode(currMB);
 
@@ -1743,6 +1751,10 @@ static void read_one_macroblock_b_slice(Macroblock *currMB)
   /***** XML_TRACE_BEGIN ****/
   setCurrentMBType(currMB->mb_type);
   /****** XML_TRACE_END *****/
+
+  /***** INSPECT_BEGIN ****/
+  save_mb_type(currMB->mb_type);
+  /****** INSPECT_END *****/
 
   currSlice->interpret_mb_mode(currMB);
 

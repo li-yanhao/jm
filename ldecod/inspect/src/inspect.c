@@ -107,6 +107,62 @@ void extract_residual(Macroblock* currMB, Slice* currSlice, float*** out_residua
   
 }
 
+
+
+
+/**
+ * \param currMB
+ * \param img_type the macroblock type (0 for undefined, 1 for I, 2 for P, and 3 for skip block)
+ *  of size (H, W)
+ */
+void extract_mb_type(Macroblock* currMB, Slice* currSlice, int mb_type, uint8** img_type)
+{
+  const int pos_x = currMB->mb_x * MB_BLOCK_SIZE;
+  const int pos_y = currMB->mb_y * MB_BLOCK_SIZE;
+
+  int value = UNDEFINED_MB;
+  switch (currSlice->slice_type)
+	{
+		case SP_SLICE:
+		case P_SLICE:
+      // printf("mb_type: %d\n", mb_type);
+      if(mb_type != 0) mb_type--;
+      if(mb_type <= 4) {
+        value = P_MB;
+      } else {
+        // printf("I_MB \n");
+        value = I_MB;
+      }
+      if(currMB->skip_flag == 1) {
+        value = S_MB;
+      }
+			break;
+
+		case B_SLICE:
+      // TODO
+			// getMbTypeName_B_Slice(iCurr_mb_type, currMB, typestring, predmodstring, 0);
+			break;
+
+		case I_SLICE:
+		case SI_SLICE: 
+      value = I_MB;
+			break;
+
+    default:
+      value = UNDEFINED_MB;
+      break;
+	}
+
+
+  for (int i = 0; i < 16; i++) {
+    for (int j = 0; j < 16; j++) {
+      img_type[pos_y + i][pos_x + j] = value;
+    }
+  }
+}
+
+
+
 void init_inspector(Inspector** inspector, VideoParameters* p_Vid, int num_display)
 {
   // printf("p_Vid->height = %d \n", p_Vid->height);
@@ -139,6 +195,14 @@ void init_inspector(Inspector** inspector, VideoParameters* p_Vid, int num_displ
     data[i] = 0.0f;
   }
 
+  if (! (*inspector)->img_type) {
+    get_mem2D(&((*inspector)->img_type), p_Vid->height, p_Vid->width);
+  }
+  uint8* data_uint8 = &((*inspector)->img_type[0][0]);
+  for (size_t i=0; i < p_Vid->height * p_Vid->width; i++) {
+    data_uint8[i] = 0;
+  }
+
   (*inspector)->is_exported = 0;
 
 }
@@ -147,7 +211,9 @@ void init_inspector(Inspector** inspector, VideoParameters* p_Vid, int num_displ
 void free_inspector(Inspector** inspector)
 {
   if (*inspector) {
+    free_mem3Dfloat((*inspector)->coeffs);
     free_mem3Dfloat((*inspector)->residual);
+    free_mem2D((*inspector)->img_type);
     free(*inspector);
   }
 }
@@ -191,15 +257,17 @@ int export_from_inspector(Inspector* inspector)
 
     char fname[100];
 
-    sprintf(fname, "imgY_s%03d_d%03d_%c.npy", inspector->num_pic_stream, inspector->num_display, pic_type);
+    sprintf(fname, "imgY_s%04d_d%04d_%c.npy", inspector->num_pic_stream, inspector->num_display, pic_type);
     iio_write_image_float(fname, &(inspector->residual[0][0][0]), inspector->width, inspector->height);
     
-    sprintf(fname, "imgU_s%03d_d%03d_%c.npy", inspector->num_pic_stream, inspector->num_display, pic_type);
+    sprintf(fname, "imgU_s%04d_d%04d_%c.npy", inspector->num_pic_stream, inspector->num_display, pic_type);
     iio_write_image_float(fname, &(inspector->residual[1][0][0]), inspector->width, inspector->height);
     
-    sprintf(fname, "imgV_s%03d_d%03d_%c.npy", inspector->num_pic_stream, inspector->num_display, pic_type);
+    sprintf(fname, "imgV_s%04d_d%04d_%c.npy", inspector->num_pic_stream, inspector->num_display, pic_type);
     iio_write_image_float(fname, &(inspector->residual[2][0][0]), inspector->width, inspector->height);
-    
+
+    sprintf(fname, "imgMBtype_s%04d_d%04d_%c.png", inspector->num_pic_stream, inspector->num_display, pic_type);
+    iio_write_image_uint8_matrix(fname, inspector->img_type, inspector->width, inspector->height);
     printf("img_*.npy is created. \n");
 
     inspector->is_exported = 1;
@@ -214,4 +282,10 @@ int export_from_inspector(Inspector* inspector)
 void inspect_poc_offset(Inspector* inspector, int offset)
 {
   inspector->poc_offset = offset;
+}
+
+
+void save_mb_type(int mb_type)
+{
+  g_mb_type = mb_type;
 }

@@ -720,7 +720,7 @@ int decode_one_frame(VideoParameters *p_Vid)
           if (inspector) {
             inspect_poc_offset(inspector, p_Vid->dec_picture->frame_id);
           }
-          
+
           incrementGOP();
           setDisplayNumberOffset(p_Vid->dec_picture->frame_id);
         }
@@ -2231,6 +2231,7 @@ void decode_one_slice(Slice *currSlice, Inspector* inspector)
     /****** XML_TRACE_END ******/
 
     /****** INSPECT_BEGIN ******/
+    extract_mb_type(currMB, currSlice, g_mb_type, inspector->img_type);
     extract_coeffs(currMB, currSlice, inspector->coeffs);
     /****** INSPECT_END ******/
 
