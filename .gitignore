@@ -1,4 +1,5 @@
 .vscode/*
+.idea/*
 
 
 bin/*.exe
@@ -17,4 +18,5 @@ bin/*
 
 ldecod/dependencies
 
-ldecod/inspect/iio
+ldecod/inspect/iio/samples
+ldecod/inspect/iio/tests
