@@ -19,67 +19,35 @@ void extract_coeffs(Macroblock* currMB, Slice* currSlice, float*** out_coeffs)
   // xml_write_start_element("Coeffs");
   if (currMB->luma_transform_size_8x8_flag) {
     // Luma
-    //  xml_write_start_element("Plane");
-    //  xml_write_int_attribute("type", 0);
     for (i = 0; i < 16; i++) {
-      // xml_write_start_element("Row");
       for (j = 0; j < 16; j++) {
-        // if(j > 0) xml_write_text(",");
         out_coeffs[0][pos_y + i][pos_x + j] = (&currSlice->mb_rres[0][0])[i][j];
-        // printf("8x8: out_coeffs[0][pos_y + i][pos_x + j] = (&currSlice->mb_rres[0][0])[i][j]; \n");
-        // xml_write_int((&currSlice->mb_rres[0][0])[i][j]);
       }
-      // xml_write_end_element();
     }
-    // xml_write_end_element();
     // Chroma
     for (pl = 1; pl <= 2; pl++) {
-      // xml_write_start_element("Plane");
-      // xml_write_int_attribute("type", pl);
       for (i = 0; i < 8; i++) {
-        // xml_write_start_element("Row");
         for (j = 0; j < 8; j++) {
-          // if(j > 0) xml_write_text(",");
-          // xml_write_int(currSlice->cof[pl][i][j]);
           out_coeffs[pl][pos_y + i][pos_x + j] = currSlice->cof[pl][i][j];
         }
-        // xml_write_end_element();
       }
-      // xml_write_end_element();
     }
   } else {
     // Luma
-    //  xml_write_start_element("Plane");
-    //  xml_write_int_attribute("type", 0);
     for (i = 0; i < 16; i++) {
-      // xml_write_start_element("Row");
       for (j = 0; j < 16; j++) {
-        // if(j > 0) xml_write_text(",");
-        // xml_write_int(currSlice->cof[0][i][j]);
-        // printf("4x4: out_coeffs[0][pos_y + i][pos_x + j] = currSlice->cof[0][i][j]; \n");
-        // printf("i=%d, j=%d \n", i, j);
         out_coeffs[0][pos_y + i][pos_x + j] = currSlice->cof[0][i][j];
       }
-      // xml_write_end_element();
     }
-    // xml_write_end_element();
     // Chroma
     for (pl = 1; pl <= 2; pl++) {
-      // xml_write_start_element("Plane");
-      // xml_write_int_attribute("type", pl);
       for (i = 0; i < 8; i++) {
-        // xml_write_start_element("Row");
         for (j = 0; j < 8; j++) {
-          // if(j > 0) xml_write_text(",");
-          // xml_write_int(currSlice->cof[pl][i][j]);
           out_coeffs[pl][pos_y + i][pos_x + j] = currSlice->cof[pl][i][j];
         }
-        // xml_write_end_element();
       }
-      // xml_write_end_element();
     }
   }
-  // xml_write_end_element();
 }
 
 
@@ -106,8 +74,6 @@ void extract_residual(Macroblock* currMB, Slice* currSlice, float*** out_residua
   }
   
 }
-
-
 
 
 /**
@@ -163,6 +129,50 @@ void extract_mb_type(Macroblock* currMB, Slice* currSlice, int mb_type, uint8** 
 
 
 
+
+
+/**
+ * \param currMB
+ * \param img_mv the motion vectors, of size (H, W). Each pixel is asigned with a mv.
+ */
+void extract_motion_vector(Macroblock* currMB, uint8*** img_mv)
+{
+  const int pos_x = currMB->mb_x * MB_BLOCK_SIZE;
+  const int pos_y = currMB->mb_y * MB_BLOCK_SIZE;
+  
+  int kk, step_h, step_v;
+
+  if(currMB->mb_type == P8x8) {
+    for(int j0 = 0; j0 < 4; j0 += 2) {	//vertical
+      for(int i0 = 0; i0 < 4; i0 += 2) {	//horizontal
+        kk = 2 * (j0 >> 1) + (i0 >> 1);
+        step_h = BLOCK_STEP [currMB->b8mode[kk]][0];
+        step_v = BLOCK_STEP [currMB->b8mode[kk]][1];
+        for (int j = j0; j < j0 + 2; j += step_v) {
+          for (int i = i0; i < i0 + 2; i += step_h) {
+            //Loop through LIST0 and LIST1
+            for (int list = LIST_0; list <= LIST_1; list++) {
+              if ((currMB->b8pdir[kk] == list || currMB->b8pdir[kk] == BI_PRED) && (currMB->b8mode[kk] !=0 )) {
+                // img_mv[pos_y + ]
+                // currMB->p_Vid->dec_picture->motion.mv[list][currMB->block_y + j][currMB->block_x + i][0];
+
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // for (int i = 0; i < 16; i++) {
+  //   for (int j = 0; j < 16; j++) {
+  //     img_type[pos_y + i][pos_x + j] = value;
+  //   }
+  // }
+}
+
+
+
 void init_inspector(Inspector** inspector, VideoParameters* p_Vid, int num_display)
 {
   // printf("p_Vid->height = %d \n", p_Vid->height);
@@ -203,6 +213,15 @@ void init_inspector(Inspector** inspector, VideoParameters* p_Vid, int num_displ
     data_uint8[i] = 0;
   }
 
+  if (! (*inspector)->img_mv) {
+    get_mem3D(&((*inspector)->img_mv), p_Vid->height, p_Vid->width, 2);
+  }
+  data_uint8 = &((*inspector)->img_mv[0][0][0]);
+  for (size_t i=0; i < p_Vid->height * p_Vid->width * 2; i++) {
+    data_uint8[i] = 0;
+  }
+  
+
   (*inspector)->is_exported = 0;
 
 }
@@ -214,6 +233,7 @@ void free_inspector(Inspector** inspector)
     free_mem3Dfloat((*inspector)->coeffs);
     free_mem3Dfloat((*inspector)->residual);
     free_mem2D((*inspector)->img_type);
+    free_mem3D((*inspector)->img_mv);
     free(*inspector);
   }
 }

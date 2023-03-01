@@ -268,6 +268,7 @@ void addMVInfoToTrace(Macroblock *currMB)
 									{
 										if ((currMB->b8pdir[kk]== list || currMB->b8pdir[kk]== BI_PRED) && (currMB->b8mode[kk] !=0))//has forward vector
 										{
+											printf("j0=%d, i0=%d, j=%d, i=%d \n", j0, i0, j, i);
 											xml_write_start_element("MotionVector");
 												xml_write_int_attribute("list", list);
 												xml_write_start_element("RefIdx");
@@ -300,6 +301,7 @@ void addMVInfoToTrace(Macroblock *currMB)
 			}
 		}
 	}
+	printf("\n");
 }
 
 void addCoeffsToTrace(Macroblock* currMB, Slice* currSlice)
