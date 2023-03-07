@@ -836,7 +836,7 @@ distblk RDCost_for_8x8blocks (Macroblock *currMB, // --> Current macroblock to c
   }
 
   //----- coded block pattern (for CABAC only) -----
-  if (!currSlice->symbol_mode == CAVLC)
+  if (!(currSlice->symbol_mode == CAVLC))
   {
     dataPart = &(currSlice->partArr[partMap[SE_CBP]]);
     eep_dp   = &(dataPart->ee_cabac);

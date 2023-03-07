@@ -209,9 +209,10 @@ int export_from_inspector(Inspector* inspector) {
 
   if (inspector && inspector->is_exported == 0) {
     printf("num_stream=%d, num_display=%d \n", inspector->num_pic_stream, inspector->num_display);
-    float* data = &(inspector->residual[0][0][0]);
+    
+    // float* data = &(inspector->residual[0][0][0]);
 
-    char pic_type;
+    char pic_type = '\0';
     switch (inspector->pic_type) {
       case B_SLICE:
         pic_type = 'B';

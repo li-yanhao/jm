@@ -1901,7 +1901,7 @@ static void unmark_long_term_field_for_reference_by_frame_idx(VideoParameters *p
     {
       if (structure == TOP_FIELD)
       {
-        if ((p_Dpb->fs_ltref[i]->is_long_term == 3))
+        if (p_Dpb->fs_ltref[i]->is_long_term == 3)
         {
           unmark_for_long_term_reference(p_Dpb->fs_ltref[i]);
         }
@@ -1937,13 +1937,13 @@ static void unmark_long_term_field_for_reference_by_frame_idx(VideoParameters *p
       }
       if (structure == BOTTOM_FIELD)
       {
-        if ((p_Dpb->fs_ltref[i]->is_long_term == 3))
+        if (p_Dpb->fs_ltref[i]->is_long_term == 3)
         {
           unmark_for_long_term_reference(p_Dpb->fs_ltref[i]);
         }
         else
         {
-          if ((p_Dpb->fs_ltref[i]->is_long_term == 2))
+          if (p_Dpb->fs_ltref[i]->is_long_term == 2)
           {
             unmark_for_long_term_reference(p_Dpb->fs_ltref[i]);
           }

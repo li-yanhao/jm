@@ -53,7 +53,7 @@ endif
 
 LIBS=   -lm $(STATIC) -lpng -ltiff -ljpeg
 AFLAGS=  
-CFLAGS=  -std=gnu99 -pedantic -ffloat-store -fno-strict-aliasing -fsigned-char $(STATIC)
+CFLAGS=  -std=gnu99 -pedantic -ffloat-store -fno-strict-aliasing -fsigned-char $(STATIC) -fcommon
 FLAGS=  $(CFLAGS) -Wall -I$(INCDIR) -I$(ADDINCDIR) -I$(XMLTRACEINCDIR) -I$(INSPECTINCDIR) -I$(IIODIR) -D __USE_LARGEFILE64 -D _FILE_OFFSET_BITS=64
 
 OPT_FLAG = -O$(OPT)
