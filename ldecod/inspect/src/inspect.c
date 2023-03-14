@@ -238,19 +238,19 @@ int export_from_inspector(Inspector* inspector) {
     if (strcmp(g_save_dir, "\0") == 0) {
       strcpy(g_save_dir, ".");
     }
-    sprintf(fname, "%s/imgY_s%04d_d%04d_%c.npy", g_save_dir, inspector->num_pic_stream, inspector->num_display,
+    sprintf(fname, "%s/imgY_d%04d_s%04d_%c.npy", g_save_dir, inspector->num_display, inspector->num_pic_stream,
             pic_type);
     iio_write_image_float(fname, &(inspector->residual[0][0][0]), inspector->width, inspector->height);
 
-    sprintf(fname, "%s/imgU_s%04d_d%04d_%c.npy", g_save_dir, inspector->num_pic_stream, inspector->num_display,
+    sprintf(fname, "%s/imgU_d%04d_s%04d_%c.npy", g_save_dir, inspector->num_display, inspector->num_pic_stream, 
             pic_type);
     iio_write_image_float(fname, &(inspector->residual[1][0][0]), inspector->width, inspector->height);
 
-    sprintf(fname, "%s/imgV_s%04d_d%04d_%c.npy", g_save_dir, inspector->num_pic_stream, inspector->num_display,
+    sprintf(fname, "%s/imgV_d%04d_s%04d_%c.npy", g_save_dir, inspector->num_display, inspector->num_pic_stream, 
             pic_type);
     iio_write_image_float(fname, &(inspector->residual[2][0][0]), inspector->width, inspector->height);
 
-    sprintf(fname, "%s/imgMBtype_s%04d_d%04d_%c.png", g_save_dir, inspector->num_pic_stream, inspector->num_display,
+    sprintf(fname, "%s/imgMBtype_d%04d_s%04d_%c.png", g_save_dir, inspector->num_display, inspector->num_pic_stream, 
             pic_type);
     iio_write_image_uint8_matrix(fname, inspector->img_type, inspector->width, inspector->height);
     printf("img_*.npy is created. \n");
